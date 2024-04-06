@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.mail.backends.filebased import EmailBackend as DjangoEmailBackend
 from django.template.loader import render_to_string
 
+
 class EmailBackend(DjangoEmailBackend):
     """
     Email backend for Django that let you preview email on your web browser
@@ -17,8 +18,8 @@ class EmailBackend(DjangoEmailBackend):
     def _get_filename(self):
         """Return a unique file name."""
         if self._fname is None:
-            timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-            fname = "%s-%s.html" % (timestamp, abs(id(self)))
+            timestamp = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+            fname = f'{timestamp}-{abs(id(self))}.html'
             self._fname = os.path.join(self.file_path, fname)
         return self._fname
 
@@ -34,7 +35,9 @@ class EmailBackend(DjangoEmailBackend):
                     attachments.append([attachment[0], new_file.name])
                     new_file.close()
                 else:
-                    new_file = open(os.path.join(temporary_path, attachment.name), 'wb+')
+                    new_file = open(
+                        os.path.join(temporary_path, attachment.name), 'wb+'
+                    )
                     new_file.write(attachment.read())
                     attachments.append([attachment.name, new_file.name])
                     new_file.close()
@@ -43,11 +46,7 @@ class EmailBackend(DjangoEmailBackend):
             body = message.alternatives[0][0]
         else:
             body = message.body
-        context = {
-            'message': message,
-            'body': body,
-            'attachments': attachments
-        }
+        context = {'message': message, 'body': body, 'attachments': attachments}
         template_content = render_to_string('django_unravel/email.html', context)
         self.stream.write(template_content.encode('utf-8'))
 
